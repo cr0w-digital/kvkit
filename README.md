@@ -133,4 +133,4 @@ MIT
 
 ## Contributing
 
-Contributions welcome! Please read the contributing guidelines and submit pull requests to the main repository.
+Contributions welcome! Please read the [contributing guidelines](./CONTRIBUTING.md) and submit pull requests to the main repository.
