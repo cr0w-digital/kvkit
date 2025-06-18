@@ -2,6 +2,18 @@
 
 A lightweight toolkit for type-safe, composable data serialization and transformation.
 
+## Quick Start
+
+```bash
+npm install @kvkit/codecs @kvkit/query @kvkit/react
+```
+
+### Basic Example
+
+```typescript
+import { flatCodec } from '@kvkit/codecs';
+import { useSearchParams } from '@kvkit/react';
+
 ## Overview
 
 **kvkit** provides simple, composable utilities for encoding and decoding data to/from string-based formats like URL parameters, localStorage, and other key-value stores. It focuses on **lightweight, codec-driven operations** without complex reactivity or state management.
@@ -9,236 +21,134 @@ A lightweight toolkit for type-safe, composable data serialization and transform
 ## Installation
 
 ```bash
-npm install @kvkit/codecs @kvkit/query @kvkit/react
+npm install kvkit-codecs kvkit-query kvkit-react
 ```
+
+# kvkit
+
+A lightweight toolkit for type-safe, composable data serialization and transformation.
+
+## Overview
+
+**kvkit** provides simple, composable utilities for encoding and decoding data to/from string-based formats like URL parameters, localStorage, and other key-value stores. It focuses on **lightweight, codec-driven operations** without complex reactivity or state management.
+
+### kvkit vs statelet
+
+- **kvkit**: Simple codec utilities for data transformation and basic synchronization
+- **statelet**: Reactive state management with advanced features like computed values, effects, and complex state coordination
+
+Use **kvkit** when you need:
+- Simple URL parameter synchronization
+- localStorage persistence with type safety
+- Lightweight data transformation
+- Basic React hooks for URL/localStorage sync
+
+Use **statelet** when you need:
+- Complex reactive state management
+- Computed values and effects
+- Advanced state coordination
+- Full-featured state stores
 
 ## Quick Start
 
-### Basic Codecs
+```bash
+npm install kvkit-codecs kvkit-query kvkit-react
+```
+
+### Basic Example
 
 ```typescript
-import { stringCodec, numberCodec, jsonCodec, flatCodec, prefixCodec } from '@kvkit/codecs';
+import { flatCodec } from '@kvkit/codecs';
+import { useSearchParams } from '@kvkit/react';
 
-// JSON codec with default key
-const userCodec = jsonCodec<{ name: string; age: number }>();
+function SearchForm() {
+  const searchCodec = flatCodec<{ query: string; filters: string[] }>();
+  const [search, setSearch] = useSearchParams(searchCodec, { query: '', filters: [] });
 
-const user = { name: 'John', age: 30 };
-const encoded = userCodec.encode(user);
-// { "data": "{\"name\":\"John\",\"age\":30}" }
-
-const decoded = userCodec.decode(encoded);
-// { name: 'John', age: 30 }
-
-// JSON codec with custom key
-const stateCodec = jsonCodec<{ items: string[]; count: number }>('appState');
-const state = { items: ['a', 'b'], count: 2 };
-const customEncoded = stateCodec.encode(state);
-// { appState: '{"items":["a","b"],"count":2}' }
-
-// Flat codec for individual key-value pairs
-const filterCodec = flatCodec<{ query: string; category: string; active: boolean }>();
-const filters = { query: 'search', category: 'tech', active: true };
-const flatEncoded = filterCodec.encode(filters);
-// { query: 'search', category: 'tech', active: 'true' }
-
-// Prefix codec for namespaced keys
-const userPrefixCodec = prefixCodec<{ name: string; role: string }>('user');
-const userData = { name: 'Alice', role: 'admin' };
-const prefixEncoded = userPrefixCodec.encode(userData);
-// { 'user.name': 'Alice', 'user.role': 'admin' }
+  return (
+    <input 
+      value={search.query}
+      onChange={(e) => setSearch({ ...search, query: e.target.value })}
+    />
+  );
+}
 ```
 
 > 💡 **Try it yourself**: Run `npm run example` to see all codec strategies in action!
 
-### React URL Synchronization
-
-```typescript
-import { useHashParams, useSearchParams } from '@kvkit/react';
-import { flatCodec } from '@kvkit/codecs';
-
-function SearchForm() {
-  const searchCodec = flatCodec<{ query: string; filters: string[] }>();
-  
-  // Sync with URL hash parameters
-  const [hashState, setHashState] = useHashParams(
-    searchCodec,
-    { query: '', filters: [] }
-  );
-
-  // Sync with URL search parameters
-  const [search, setSearch] = useSearchParams(
-    searchCodec,
-    { query: '', filters: [] }
-  );
-
-  return (
-    <div>
-      <input 
-        value={search.query}
-        onChange={(e) => setSearch({ ...search, query: e.target.value })}
-      />
-      {/* URL automatically updates as you type */}
-    </div>
-  );
-}
-```
-
-### localStorage Persistence
-
-```typescript
-import { useLocalStorageCodec } from '@kvkit/react';
-import { flatCodec } from '@kvkit/codecs';
-
-function UserProfile() {
-  const userCodec = flatCodec<{ name: string; theme: 'light' | 'dark' }>();
-  
-  const [user, setUser] = useLocalStorageCodec(
-    userCodec,
-    'user-profile',
-    { name: '', theme: 'light' }
-  );
-  
-  return (
-    <div>
-      <input 
-        value={user.name}
-        onChange={(e) => setUser({ ...user, name: e.target.value })}
-      />
-      <button onClick={() => setUser({ ...user, theme: user.theme === 'light' ? 'dark' : 'light' })}>
-        Toggle Theme ({user.theme})
-      </button>
-    </div>
-  );
-}
-```
-
 ## Packages
 
-### @kvkit/codecs
+| Package | Description | README |
+|---------|-------------|---------|
+| [`@kvkit/codecs`](./packages/codecs) | Core codec implementations for data transformation | [📖](./packages/codecs/README.md) |
+| [`@kvkit/query`](./packages/query) | URL and query string utilities | [📖](./packages/query/README.md) |
+| [`@kvkit/react`](./packages/react) | React hooks for URL and localStorage sync | [📖](./packages/react/README.md) |
 
-Core codec implementations for common data types:
+## Key Features
 
-- `booleanCodec` - Boolean values
-- `dateCodec` - Date objects
-- `flatCodec<T>()` - Individual key-value pairs with JSON values
-- `jsonCodec<T>(key?)` - JSON-serializable objects with configurable parameter key
-- `numberCodec` - Numeric values
-- `prefixCodec<T>(namespace, separator?)` - Namespaced keys
-- `stringCodec` - Simple string values
-- `stringArrayCodec` - String arrays
+### 🎯 **Type-Safe**
+All codecs are fully typed with TypeScript, providing excellent developer experience.
 
-#### Codec Strategies
+### 🧩 **Composable**
+Mix and match different codec strategies based on your needs.
 
-**JSON Codec** (`jsonCodec`):
-- Serializes entire state as JSON in one parameter
-- Compact URL representation
-- Configurable parameter key (default: 'data')
-- Good for complex nested objects
-- Example: `?data={"name":"John","preferences":{"theme":"dark"}}` or `?user={"name":"John","role":"admin"}`
+### 🪶 **Lightweight**
+No complex state management - just simple utilities for data transformation.
 
-**Flat Codec** (`flatCodec`):
-- Each property becomes a separate parameter
-- Easy to read and modify individual values
-- Good for forms and filters
-- Example: `?name=John&age=30&active=true`
+### 🔄 **Framework Agnostic**
+Core codecs work anywhere, with optional React integration.
 
-**Prefix Codec** (`prefixCodec`):
-- Namespaces parameters with a prefix
-- Avoids conflicts when multiple components use URL state
-- Good for modular applications
-- Example: `?user.name=John&user.role=admin&search.query=test`
+## Codec Strategies
 
-### @kvkit/query
-
-URL and query string utilities:
-
+### JSON Codec
+Best for complex nested objects:
 ```typescript
-import { encodeToQuery, decodeFromQuery, updateQuery } from '@kvkit/query';
-
-// Convert objects to/from URL parameters
-const params = encodeToQuery(userCodec, { name: 'John', age: 30 });
-const user = decodeFromQuery(userCodec, params);
-
-// Update current URL
-updateQuery(userCodec, { name: 'Jane', age: 25 }, { replace: true });
+// URL: ?data={"user":{"name":"Alice","role":"admin"}}
+const codec = jsonCodec<{ user: { name: string; role: string } }>();
 ```
 
-### @kvkit/react
-
-React hooks for codec-driven synchronization:
-
-#### `useUrlSyncedState<T>(codec, defaultValue, options?)`
-
-The main hook for URL search parameter synchronization.
-
-**Options:**
-- `history: 'push' | 'replace'` - Navigation method (default: `'replace'`)
-
+### Flat Codec  
+Best for simple form data:
 ```typescript
-// Search parameters (?key=value) - default behavior
-const [state, setState] = useUrlSyncedState(codec, defaultValue);
-
-// Use pushState for navigation history
-const [state, setState] = useUrlSyncedState(codec, defaultValue, { history: 'push' });
+// URL: ?name=Alice&role=admin&active=true
+const codec = flatCodec<{ name: string; role: string; active: boolean }>();
 ```
 
-#### `useHashParams<T>(codec, defaultValue)`
-
-Synchronize state with hash parameters (`#key=value`).
-
+### Prefix Codec
+Best for avoiding parameter conflicts:
 ```typescript
-const [state, setState] = useHashParams(codec, defaultValue);
-// Handles hash parameters (#key=value)
+// URL: ?user.name=Alice&user.role=admin
+const codec = prefixCodec<{ name: string; role: string }>('user');
 ```
 
-#### `useSearchParams<T>(codec, defaultValue)`
+## Examples
 
-Synchronize state with search parameters (`?key=value`).
+See the [example.ts](./example.ts) file for comprehensive usage examples, or run:
 
-```typescript
-import { useSearchParams } from '@kvkit/react';
-import { flatCodec } from '@kvkit/codecs';
-
-const searchCodec = flatCodec<{ query: string; page: number }>();
-const [search, setSearch] = useSearchParams(searchCodec, { query: '', page: 1 });
-
-// Updates the URL as you change state
-setSearch({ query: 'test', page: 2 });
+```bash
+npm run example
 ```
 
-- Keeps state in sync with the URL parameters.
-- Useful for search/filter forms and pagination.
-- Automatically updates the URL and parses changes from the address bar.
+## Development
 
-### @kvkit/codecs
+```bash
+# Install dependencies
+npm install
 
-Core codec implementations and the `Codec<T>` interface:
+# Build all packages
+npm run build
 
-```typescript
-interface Codec<T> {
-  encode(value: T): Record<string, string>;
-  decode(data: Record<string, string>): T;
-}
+# Run tests
+npm test
+
+# Run example
+npm run example
 ```
 
-## Custom Codecs
+## License
 
-Create your own codecs by implementing the `Codec<T>` interface:
+MIT
 
-```typescript
-import type { Codec } from '@kvkit/codecs';
+## Contributing
 
-const customUserCodec: Codec<User> = {
-  encode: (user) => ({
-    name: user.name,
-    age: user.age.toString(),
-    active: user.active ? 'true' : 'false'
-  }),
-  
-  decode: (data) => ({
-    name: data.name || '',
-    age: parseInt(data.age || '0', 10),
-    active: data.active === 'true'
-  })
-};
-```
+Contributions welcome! Please read the contributing guidelines and submit pull requests to the main repository.
