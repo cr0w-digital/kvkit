@@ -209,4 +209,3 @@ console.log('JSON strategy (custom key):', jsonResultCustom.toString());
 const prefixFormCodec = prefixCodec<FormData>('form');
 const prefixResult = encodeToQuery(prefixFormCodec, formData);
 console.log('Prefix strategy:', prefixResult.toString());
-

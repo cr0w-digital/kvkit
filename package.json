@@ -13,7 +13,7 @@
     "clean": "npm run clean --workspaces",
     "dev": "npm run dev --workspaces",
     "typecheck": "npm run typecheck --workspaces",
-    "example": "tsx example.ts",
+    "example": "tsx examples/basic.ts",
     "demo:react": "npm run dev --workspace @kvkit/react-example",
     "changeset": "changeset",
     "changeset:version": "changeset version && npm install --package-lock-only",

@@ -102,7 +102,7 @@ npm run demo:react
 ```
 
 ### Basic Examples
-See the [example.ts](./example.ts) file for codec usage examples:
+See the [basic.ts](./examples/basic.ts) file for codec usage examples:
 
 ```bash
 npm run example
