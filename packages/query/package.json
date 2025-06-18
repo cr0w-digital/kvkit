@@ -1,6 +1,6 @@
 {
   "name": "@kvkit/query",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Encode/decode URLSearchParams via codecs",
   "type": "module",
   "main": "./dist/index.js",
@@ -23,7 +23,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@kvkit/codecs": "^0.1.0"
+    "@kvkit/codecs": "^0.2.0"
   },
   "devDependencies": {
     "typescript": "^5.5.0",

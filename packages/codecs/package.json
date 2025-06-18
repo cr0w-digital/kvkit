@@ -1,6 +1,6 @@
 {
   "name": "@kvkit/codecs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pure codecs for converting objects to/from string maps",
   "type": "module",
   "main": "./dist/index.js",
