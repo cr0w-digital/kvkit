@@ -125,6 +125,9 @@ npm run demo:react
 
 # Run basic examples
 npm run example
+
+# Add a changeset for your changes
+npm run changeset
 ```
 
 ## License

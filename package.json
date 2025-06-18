@@ -15,12 +15,14 @@
     "typecheck": "npm run typecheck --workspaces",
     "example": "tsx example.ts",
     "demo:react": "npm run dev --workspace @kvkit/react-example",
-    "publish": "npm run build && npm publish --workspace packages/codecs --access public && npm publish --workspace packages/query --access public && npm publish --workspace packages/react --access public",
-    "publish:codecs": "npm run build && npm publish --workspace packages/codecs --access public",
-    "publish:query": "npm run build && npm publish --workspace packages/query --access public",
-    "publish:react": "npm run build && npm publish --workspace packages/react --access public"
+    "changeset": "changeset",
+    "changeset:version": "changeset version && npm install --package-lock-only",
+    "changeset:publish": "npm run build && changeset publish",
+    "release": "npm run build && changeset publish"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.5.1",
+    "@changesets/cli": "^2.29.4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",

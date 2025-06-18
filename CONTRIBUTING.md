@@ -207,12 +207,85 @@ chore: update dependencies
 
 ## Release Process
 
-Releases are handled by maintainers:
+We use [Changesets](https://github.com/changesets/changesets) to manage versioning and releases.
 
-1. Version bumping follows semantic versioning
-2. Packages are published to npm with `@kvkit/` scope
-3. Changelog is updated with notable changes
-4. Git tags are created for releases
+### Adding a Changeset
+
+When you make changes that should be included in a release, add a changeset:
+
+```bash
+npm run changeset
+```
+
+This will prompt you to:
+1. Select which packages have changed
+2. Choose the type of change (major, minor, patch)
+3. Write a summary of the changes
+
+Example changeset workflow:
+```bash
+# After making changes to codecs package
+npm run changeset
+
+# Select @kvkit/codecs
+# Choose "patch" for bug fix, "minor" for new feature, "major" for breaking change
+# Write summary: "Fix encoding issue with special characters"
+```
+
+### Changeset Guidelines
+
+**Patch** (0.0.X) - Bug fixes and small improvements:
+- Fix existing functionality
+- Performance improvements
+- Documentation updates
+
+**Minor** (0.X.0) - New features that are backward compatible:
+- Add new codec types
+- Add new React hooks
+- Add new utility functions
+
+**Major** (X.0.0) - Breaking changes:
+- Change existing API signatures
+- Remove deprecated features
+- Change default behavior
+
+### Release Process (Maintainers)
+
+Releases are handled by maintainers using Changesets:
+
+1. **Version bumping:**
+   ```bash
+   npm run changeset:version
+   ```
+   This consumes changesets and updates package versions.
+
+2. **Publishing:**
+   ```bash
+   npm run changeset:publish
+   ```
+   This builds and publishes packages to npm.
+
+3. **Quick release:**
+   ```bash
+   npm run release
+   ```
+   This combines build and publish steps.
+
+### Changeset Best Practices
+
+- Add changesets in the same PR as your changes
+- Write clear, user-focused summaries
+- Include breaking change details in major changesets
+- Don't add changesets for development-only changes (tests, build config, etc.)
+
+Example changeset content:
+```markdown
+---
+"@kvkit/codecs": patch
+---
+
+Fix dateCodec to handle timezone offsets correctly. The codec now preserves timezone information when encoding and decoding Date objects.
+```
 
 ## Issue Guidelines
 
