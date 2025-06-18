@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
   "scripts": {
     "build": "npm run build --workspaces",
@@ -12,7 +13,12 @@
     "clean": "npm run clean --workspaces",
     "dev": "npm run dev --workspaces",
     "typecheck": "npm run typecheck --workspaces",
-    "example": "tsx example.ts"
+    "example": "tsx example.ts",
+    "demo:react": "npm run dev --workspace @kvkit/react-example",
+    "publish": "npm run build && npm publish --workspace packages/codecs --access public && npm publish --workspace packages/query --access public && npm publish --workspace packages/react --access public",
+    "publish:codecs": "npm run build && npm publish --workspace packages/codecs --access public",
+    "publish:query": "npm run build && npm publish --workspace packages/query --access public",
+    "publish:react": "npm run build && npm publish --workspace packages/react --access public"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
