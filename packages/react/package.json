@@ -23,7 +23,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@kvkit/codecs": "^0.2.0"
+    "@kvkit/codecs": "file:../codecs"
   },
   "peerDependencies": {
     "react": "^18.0.0"

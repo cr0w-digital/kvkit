@@ -167,7 +167,7 @@ export function useUrlSyncedState<T>(
         
         for (const [key, val] of Object.entries(encoded)) {
           if (val !== undefined && val !== null) {
-            params.set(key, val);
+            params.set(key, String(val));
           }
         }
         
