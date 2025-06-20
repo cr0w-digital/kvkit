@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { 
   useSearchParams, 
   useHashParams, 
+  useHashRoutingParams,
   useLocalStorageCodec 
 } from '@kvkit/react';
 import { 
@@ -490,6 +491,86 @@ function PrefixCodecDemo() {
   );
 }
 
+function HashRoutingDemo() {
+  // Use hash routing for product search - preserves the path while updating parameters
+  const productCodec = flatCodec<{ query: string; category: string; minPrice: number }>();
+  const [search, setSearch] = useHashRoutingParams(productCodec, { 
+    query: '', 
+    category: 'all', 
+    minPrice: 0 
+  });
+
+  const handleInputChange = (field: keyof typeof search, value: any) => {
+    setSearch({ ...search, [field]: value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Product search submitted:', search);
+  };
+
+  return (
+    <div className="demo-section">
+      <h2>🛒 Product Search (Hash Routing + Flat Codec)</h2>
+      <p>
+        This form uses hash routing to sync state. The URL format is <code>#/path?param=value</code>, 
+        which preserves the path while updating query parameters. Perfect for SPAs with client-side routing!
+      </p>
+      
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="product-query">Product Search</label>
+          <input
+            id="product-query"
+            type="text"
+            value={search.query}
+            onChange={(e) => handleInputChange('query', e.target.value)}
+            placeholder="Search for products..."
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="product-category">Category</label>
+          <select
+            id="product-category"
+            value={search.category}
+            onChange={(e) => handleInputChange('category', e.target.value)}
+          >
+            <option value="all">All Categories</option>
+            <option value="electronics">Electronics</option>
+            <option value="books">Books</option>
+            <option value="clothing">Clothing</option>
+            <option value="home">Home & Garden</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="product-min-price">Minimum Price</label>
+          <input
+            id="product-min-price"
+            type="number"
+            min="0"
+            value={search.minPrice}
+            onChange={(e) => handleInputChange('minPrice', parseInt(e.target.value) || 0)}
+          />
+        </div>
+
+        <button type="submit">Search Products</button>
+      </form>
+
+      <div className="url-display">
+        Current Hash: {window.location.hash || '#/products'}
+        <br />
+        <small>
+          💡 Notice how the path part (e.g., "/products") is preserved when you change search parameters.
+          Try navigating to <code>#/products</code>, <code>#/categories/electronics</code>, or <code>#/user/123/wishlist</code> 
+          and then use the form - the path will be maintained!
+        </small>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   return (
     <div className="container">
@@ -499,6 +580,7 @@ function App() {
       </p>
 
       <SearchDemo />
+      <HashRoutingDemo />
       <UserFormDemo />
       <TabDemo />
       <PreferencesDemo />
@@ -512,6 +594,7 @@ function App() {
           <li><strong>Tab Navigation:</strong> Uses hash parameters for UI state that shouldn't trigger navigation</li>
           <li><strong>Preferences:</strong> Uses localStorage for persistent settings across sessions</li>
           <li><strong>Prefix Demo:</strong> Shows how multiple forms can coexist without parameter conflicts</li>
+          <li><strong>Hash Routing Demo:</strong> Demonstrates hash routing for preserving path and syncing state</li>
         </ul>
         <p>
           <strong>Try this:</strong> Fill out the forms, copy the URL, and paste it in a new tab. 

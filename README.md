@@ -12,7 +12,7 @@ npm install @kvkit/codecs @kvkit/query @kvkit/react
 
 ```typescript
 import { flatCodec } from '@kvkit/codecs';
-import { useSearchParams } from '@kvkit/react';
+import { useSearchParams, useHashRoutingParams } from '@kvkit/react';
 
 function SearchForm() {
   const searchCodec = flatCodec<{ query: string; filters: string[] }>();
@@ -23,6 +23,29 @@ function SearchForm() {
       value={search.query}
       onChange={(e) => setSearch({ ...search, query: e.target.value })}
     />
+  );
+}
+
+// For hash routing (e.g., #/products?query=laptop&category=electronics)
+function ProductSearch() {
+  const searchCodec = flatCodec<{ query: string; category: string }>();
+  const [search, setSearch] = useHashRoutingParams(searchCodec, { query: '', category: '' });
+
+  return (
+    <div>
+      <input 
+        value={search.query}
+        onChange={(e) => setSearch({ ...search, query: e.target.value })}
+      />
+      <select 
+        value={search.category}
+        onChange={(e) => setSearch({ ...search, category: e.target.value })}
+      >
+        <option value="">All Categories</option>
+        <option value="electronics">Electronics</option>
+        <option value="books">Books</option>
+      </select>
+    </div>
   );
 }
 ```
@@ -55,6 +78,10 @@ Use **statelet** when you need:
 | [`@kvkit/query`](./packages/query) | URL and query string utilities | [📖](./packages/query/README.md) |
 | [`@kvkit/react`](./packages/react) | React hooks for URL and localStorage sync | [📖](./packages/react/README.md) |
 
+## Hash Routing
+
+kvkit now supports hash-based routing patterns like `#/path?param=value`. See the [Hash Routing Guide](./packages/react/HASH_ROUTING.md) for detailed documentation and examples.
+
 ## Key Features
 
 ### 🎯 **Type-Safe**
@@ -68,6 +95,9 @@ No complex state management - just simple utilities for data transformation.
 
 ### 🔄 **Framework Agnostic**
 Core codecs work anywhere, with optional React integration.
+
+### 🚀 **Hash Routing Support**
+Built-in support for hash-based routing patterns like `#/path?param=value`.
 
 ## Codec Strategies
 
@@ -90,6 +120,30 @@ Best for avoiding parameter conflicts:
 ```typescript
 // URL: ?user.name=Alice&user.role=admin
 const codec = prefixCodec<{ name: string; role: string }>('user');
+```
+
+## URL Synchronization
+
+### Search Parameters
+Sync state with URL search parameters:
+```typescript
+// URL: ?name=Alice&role=admin
+const [user, setUser] = useSearchParams(flatCodec<User>(), defaultUser);
+```
+
+### Hash Parameters
+Sync state with URL hash parameters:
+```typescript
+// URL: #name=Alice&role=admin
+const [user, setUser] = useHashParams(flatCodec<User>(), defaultUser);
+```
+
+### Hash Routing
+Sync state with hash routing patterns (preserves path):
+```typescript
+// URL: #/products?query=laptop&category=electronics
+const [search, setSearch] = useHashRoutingParams(flatCodec<SearchFilters>(), defaultFilters);
+// Path "/products" is preserved when updating parameters
 ```
 
 ## Examples

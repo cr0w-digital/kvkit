@@ -100,6 +100,8 @@ export interface UrlSyncOptions {
   history?: 'push' | 'replace';
   /** Whether to use hash parameters instead of search parameters */
   useHash?: boolean;
+  /** When using hash, whether to handle hash routing format "#/path?k=v&..." */
+  hashRouting?: boolean;
 }
 
 /**
@@ -114,16 +116,30 @@ export function useUrlSyncedState<T>(
   defaultValue: T,
   options: UrlSyncOptions = {}
 ): [T, (value: T) => void] {
-  const { history = 'replace', useHash = false } = options;
+  const { history = 'replace', useHash = false, hashRouting = false } = options;
 
   const getParams = useCallback((): URLSearchParams => {
     if (typeof window === 'undefined') return new URLSearchParams();
     
-    const paramString = useHash 
-      ? window.location.hash.slice(1) 
-      : window.location.search;
+    let paramString: string;
+    
+    if (useHash) {
+      const hash = window.location.hash.slice(1); // Remove the '#'
+      
+      if (hashRouting) {
+        // Handle hash routing format: "#/path?k=v&..."
+        const queryIndex = hash.indexOf('?');
+        paramString = queryIndex >= 0 ? hash.slice(queryIndex + 1) : '';
+      } else {
+        // Use entire hash as query string
+        paramString = hash;
+      }
+    } else {
+      paramString = window.location.search;
+    }
+    
     return new URLSearchParams(paramString);
-  }, [useHash]);
+  }, [useHash, hashRouting]);
 
   const getInitialValue = useCallback((): T => {
     try {
@@ -172,7 +188,18 @@ export function useUrlSyncedState<T>(
         }
         
         if (useHash) {
-          window.location.hash = params.toString();
+          if (hashRouting) {
+            // Handle hash routing format: preserve path, update query params
+            const hash = window.location.hash.slice(1);
+            const queryIndex = hash.indexOf('?');
+            const path = queryIndex >= 0 ? hash.slice(0, queryIndex) : hash;
+            const queryString = params.toString();
+            
+            window.location.hash = queryString ? `${path}?${queryString}` : path;
+          } else {
+            // Use entire hash as query string
+            window.location.hash = params.toString();
+          }
         } else {
           const url = new URL(window.location.href);
           url.search = params.toString();
@@ -187,7 +214,7 @@ export function useUrlSyncedState<T>(
     } catch (error) {
       console.error('Failed to update URL:', error);
     }
-  }, [codec, history, useHash]);
+  }, [codec, history, useHash, hashRouting]);
 
   return [value, updateUrl];
 }
@@ -210,4 +237,14 @@ export function useHashParams<T>(
   defaultValue: T
 ): [T, (value: T) => void] {
   return useUrlSyncedState(codec, defaultValue, { useHash: true });
+}
+
+/**
+ * Hook to use a codec value from hash routing params (handles "#/path?k=v&..." format)
+ */
+export function useHashRoutingParams<T>(
+  codec: Codec<T>,
+  defaultValue: T
+): [T, (value: T) => void] {
+  return useUrlSyncedState(codec, defaultValue, { useHash: true, hashRouting: true });
 }

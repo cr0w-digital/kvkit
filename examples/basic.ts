@@ -209,3 +209,76 @@ console.log('JSON strategy (custom key):', jsonResultCustom.toString());
 const prefixFormCodec = prefixCodec<FormData>('form');
 const prefixResult = encodeToQuery(prefixFormCodec, formData);
 console.log('Prefix strategy:', prefixResult.toString());
+
+// ===== Hash Routing Examples =====
+
+console.log('\n=== Hash Routing Simulation ===');
+
+// Simulate hash routing URL parsing
+function parseHashRouting(hash: string): { path: string; params: URLSearchParams } {
+  const hashContent = hash.startsWith('#') ? hash.slice(1) : hash;
+  const queryIndex = hashContent.indexOf('?');
+  
+  if (queryIndex >= 0) {
+    const path = hashContent.slice(0, queryIndex);
+    const paramString = hashContent.slice(queryIndex + 1);
+    return { path, params: new URLSearchParams(paramString) };
+  } else {
+    return { path: hashContent, params: new URLSearchParams() };
+  }
+}
+
+// Simulate hash routing URL construction
+function buildHashRouting(path: string, params: URLSearchParams): string {
+  const paramString = params.toString();
+  return paramString ? `${path}?${paramString}` : path;
+}
+
+// Example: Product search with hash routing
+type ProductFilters = {
+  query: string;
+  category: string;
+  minPrice: number;
+  inStock: boolean;
+};
+
+const productCodec = flatCodec<ProductFilters>();
+const productFilters: ProductFilters = {
+  query: 'laptop',
+  category: 'electronics',
+  minPrice: 500,
+  inStock: true
+};
+
+// Simulate current hash: #/products?query=old&category=books
+const currentHash = '#/products?query=old&category=books';
+console.log('Current hash:', currentHash);
+
+const { path, params: currentParams } = parseHashRouting(currentHash);
+console.log('Parsed path:', path);
+console.log('Current params:', Object.fromEntries(currentParams));
+
+// Update parameters while preserving path
+const newParams = encodeToQuery(productCodec, productFilters);
+const newHash = buildHashRouting(path, newParams);
+console.log('Updated hash:', `#${newHash}`);
+
+// Demonstrate path preservation with different routes
+const testRoutes = [
+  '#/products',
+  '#/products?category=books',
+  '#/user/123/settings?tab=profile',
+  '#/?global=true',
+  '#/deep/nested/path/here?existing=param'
+];
+
+console.log('\n=== Path Preservation Examples ===');
+testRoutes.forEach(route => {
+  const { path, params } = parseHashRouting(route);
+  
+  // Add/update a parameter
+  params.set('timestamp', Date.now().toString());
+  
+  const updatedRoute = buildHashRouting(path, params);
+  console.log(`${route} → #${updatedRoute}`);
+});
