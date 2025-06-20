@@ -1,8 +1,10 @@
 import { defineConfig } from 'vitest/config'
+import path from 'path'
 
 export default defineConfig({
   test: {
     environment: 'jsdom',
+    setupFiles: path.resolve(__dirname, './setup-tests.ts'),
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -16,10 +18,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@kvkit/types': './packages/types/src',
-      '@kvkit/codecs': './packages/codecs/src',
-      '@kvkit/query': './packages/query/src',
-      '@kvkit/react': './packages/react/src'
+      '@kvkit/types': path.resolve(__dirname, './packages/types/src'),
+      '@kvkit/codecs': path.resolve(__dirname, './packages/codecs/src'),
+      '@kvkit/query': path.resolve(__dirname, './packages/query/src'),
+      '@kvkit/react': path.resolve(__dirname, './packages/react/src')
     }
   }
 })

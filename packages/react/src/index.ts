@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Codec } from '@kvkit/codecs';
+import { decodeFromQuery, updateQuery, type URLSyncOptions} from '@kvkit/query';
 
 /**
  * Source function that can provide values
@@ -93,18 +94,6 @@ export function useLocalStorageCodec<T>(
 }
 
 /**
- * Options for URL synchronization hooks
- */
-export interface UrlSyncOptions {
-  /** Whether to use pushState or replaceState for navigation */
-  history?: 'push' | 'replace';
-  /** Whether to use hash parameters instead of search parameters */
-  useHash?: boolean;
-  /** When using hash, whether to handle hash routing format "#/path?k=v&..." */
-  hashRouting?: boolean;
-}
-
-/**
  * Hook to use a codec value synchronized with URL parameters (search or hash)
  * 
  * @param codec - The codec to encode/decode values
@@ -114,47 +103,15 @@ export interface UrlSyncOptions {
 export function useUrlSyncedState<T>(
   codec: Codec<T>,
   defaultValue: T,
-  options: UrlSyncOptions = {}
+  options: URLSyncOptions = {}
 ): [T, (value: T) => void] {
-  const { history = 'replace', useHash = false, hashRouting = false } = options;
-
-  const getParams = useCallback((): URLSearchParams => {
-    if (typeof window === 'undefined') return new URLSearchParams();
-    
-    let paramString: string;
-    
-    if (useHash) {
-      const hash = window.location.hash.slice(1); // Remove the '#'
-      
-      if (hashRouting) {
-        // Handle hash routing format: "#/path?k=v&..."
-        const queryIndex = hash.indexOf('?');
-        paramString = queryIndex >= 0 ? hash.slice(queryIndex + 1) : '';
-      } else {
-        // Use entire hash as query string
-        paramString = hash;
-      }
-    } else {
-      paramString = window.location.search;
-    }
-    
-    return new URLSearchParams(paramString);
-  }, [useHash, hashRouting]);
-
-  const getInitialValue = useCallback((): T => {
+  const getInitialValue = useCallback(() => {
     try {
-      const params = getParams();
-      const data: Record<string, string> = {};
-      
-      for (const [key, val] of params.entries()) {
-        data[key] = val;
-      }
-      
-      return codec.decode(data);
+      return decodeFromQuery(codec, options);
     } catch {
       return defaultValue;
     }
-  }, [codec, defaultValue, getParams]);
+  }, [codec, defaultValue, options]);
 
   const [value, setValue] = useState<T>(getInitialValue);
 
@@ -164,57 +121,17 @@ export function useUrlSyncedState<T>(
       setValue(getInitialValue());
     };
 
-    if (useHash) {
-      window.addEventListener('hashchange', handleUrlChange);
-      return () => window.removeEventListener('hashchange', handleUrlChange);
-    } else {
-      window.addEventListener('popstate', handleUrlChange);
-      return () => window.removeEventListener('popstate', handleUrlChange);
-    }
-  }, [getInitialValue, useHash]);
+    const eventType = options.useHash ? 'hashchange' : 'popstate';
+    window.addEventListener(eventType, handleUrlChange);
+    return () => window.removeEventListener(eventType, handleUrlChange);
+  }, [getInitialValue, options.useHash]);
 
   const updateUrl = useCallback((newValue: T) => {
-    try {
-      setValue(newValue);
-      
-      if (typeof window !== 'undefined') {
-        const encoded = codec.encode(newValue);
-        const params = new URLSearchParams();
-        
-        for (const [key, val] of Object.entries(encoded)) {
-          if (val !== undefined && val !== null) {
-            params.set(key, String(val));
-          }
-        }
-        
-        if (useHash) {
-          if (hashRouting) {
-            // Handle hash routing format: preserve path, update query params
-            const hash = window.location.hash.slice(1);
-            const queryIndex = hash.indexOf('?');
-            const path = queryIndex >= 0 ? hash.slice(0, queryIndex) : hash;
-            const queryString = params.toString();
-            
-            window.location.hash = queryString ? `${path}?${queryString}` : path;
-          } else {
-            // Use entire hash as query string
-            window.location.hash = params.toString();
-          }
-        } else {
-          const url = new URL(window.location.href);
-          url.search = params.toString();
-          
-          if (history === 'replace') {
-            window.history.replaceState(null, '', url.toString());
-          } else {
-            window.history.pushState(null, '', url.toString());
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Failed to update URL:', error);
-    }
-  }, [codec, history, useHash, hashRouting]);
+    // Update the state immediately for better responsiveness
+    setValue(newValue);
+    // Update the URL, which will be the single source of truth
+    updateQuery(codec, newValue, options);
+  }, [codec, options]);
 
   return [value, updateUrl];
 }
