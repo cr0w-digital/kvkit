@@ -1,5 +1,17 @@
 # @kvkit/react
 
+## 0.3.0
+
+### Minor Changes
+
+- [`5c004ff`](https://github.com/cr0w-digital/kvkit/commit/5c004ff2f890eecd6fe26d7c0c0b454cec20169d) Thanks [@cr0w-denny](https://github.com/cr0w-denny)! - Add hash routing support for SPAs
+
+  - Add `hashRouting` option to `UrlSyncOptions` for handling `#/path?param=value` URLs
+  - Add `useHashRoutingParams` hook as convenience wrapper for hash routing scenarios
+  - Hash routing preserves the path portion while updating only query parameters
+  - Comprehensive unit tests covering hash parsing, path preservation, and edge cases
+  - Updated examples and documentation with hash routing demonstrations
+
 ## 0.2.0
 
 ### Minor Changes
