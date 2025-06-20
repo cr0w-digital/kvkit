@@ -1,6 +1,6 @@
 {
   "name": "@kvkit/react",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "React hooks for codec-driven value management",
   "type": "module",
   "main": "./dist/index.js",
